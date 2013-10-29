@@ -1,0 +1,5 @@
+tmp/*
+nbproject/*
+.project
+.settings/*
+com/mobiliti/preconsultas/consultas/*

@@ -1,0 +1,34 @@
+build.tabela.js,58,98,Cannot set property 'show' of undefined,n=Netscape v=5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.116 Safari/537.36, 29/06/2013 3:36:31
+build.tabela.js,58,98,Cannot set property 'show' of undefined,n=Netscape v=5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.116 Safari/537.36, 29/06/2013 3:36:58
+build.tabela.js,58,98,Cannot set property 'show' of undefined,n=Netscape v=5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.116 Safari/537.36, 29/06/2013 3:48:51
+build.tabela.js,58,98,Cannot set property 'show' of undefined,n=Netscape v=5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.116 Safari/537.36, 29/06/2013 3:49:05
+build.tabela.js,58,98,Unexpected token <,n=Netscape v=5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.116 Safari/537.36, 29/06/2013 16:55:21
+build.tabela.js,52,108,Cannot read property \'getSize\' of null,n=Netscape v=5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.116 Safari/537.36, 11/07/2013 15:53:04
+build.tablea.js,469,473,,n=Netscape v=5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1500.72 Safari/537.36, 24/07/2013 12:38:08
+build.tablea.js,469,473,,n=Netscape v=5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1500.72 Safari/537.36, 24/07/2013 12:38:08
+build.tablea.js,469,473,,n=Netscape v=5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1500.72 Safari/537.36, 24/07/2013 12:43:50
+build.tablea.js,469,473,,n=Netscape v=5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1500.72 Safari/537.36, 24/07/2013 12:43:50
+build.tablea.js,469,473,,n=Netscape v=5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1500.72 Safari/537.36, 24/07/2013 12:45:50
+build.tablea.js,469,473,,n=Netscape v=5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1500.72 Safari/537.36, 24/07/2013 12:45:50
+build.tablea.js,469,473,,n=Netscape v=5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1500.72 Safari/537.36, 24/07/2013 12:48:08
+build.tablea.js,469,473,,n=Netscape v=5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1500.72 Safari/537.36, 24/07/2013 12:48:08
+build.tablea.js,469,473,,n=Netscape v=5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1500.95 Safari/537.36, 03/08/2013 11:30:27
+build.tablea.js,469,473,,n=Netscape v=5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1500.95 Safari/537.36, 03/08/2013 11:30:27
+build.tablea.js,469,473,,n=Netscape v=5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.62 Safari/537.36, 06/09/2013 17:36:28
+build.tablea.js,469,473,,n=Netscape v=5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.62 Safari/537.36, 06/09/2013 17:36:28
+build.tablea.js,469,473,,n=Netscape v=5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.62 Safari/537.36, 06/09/2013 17:36:28
+build.tablea.js,469,473,,n=Netscape v=5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.62 Safari/537.36, 06/09/2013 17:36:33
+build.tablea.js,469,473,,n=Netscape v=5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.62 Safari/537.36, 06/09/2013 17:36:33
+build.tablea.js,469,473,,n=Netscape v=5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.62 Safari/537.36, 06/09/2013 17:36:33
+build.tablea.js,469,473,,n=Netscape v=5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.62 Safari/537.36, 06/09/2013 17:36:50
+build.tablea.js,469,473,,n=Netscape v=5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.62 Safari/537.36, 06/09/2013 17:36:50
+build.tablea.js,469,473,,n=Netscape v=5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.62 Safari/537.36, 06/09/2013 17:36:51
+build.tablea.js,469,473,,n=Netscape v=5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.62 Safari/537.36, 06/09/2013 17:36:51
+build.tablea.js,469,473,,n=Netscape v=5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.62 Safari/537.36, 06/09/2013 17:37:06
+build.tablea.js,469,473,,n=Netscape v=5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.62 Safari/537.36, 06/09/2013 17:37:07
+build.tablea.js,469,473,,n=Netscape v=5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.62 Safari/537.36, 06/09/2013 17:37:07
+build.tablea.js,469,473,,n=Netscape v=5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.62 Safari/537.36, 06/09/2013 17:44:31
+build.tablea.js,469,473,,n=Netscape v=5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.62 Safari/537.36, 06/09/2013 17:44:31
+build.tablea.js,469,473,,n=Netscape v=5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.62 Safari/537.36, 06/09/2013 17:44:31
+build.tablea.js,469,473,,n=Netscape v=5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.66 Safari/537.36, 11/09/2013 20:40:13
+build.tablea.js,469,473,,n=Netscape v=5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.66 Safari/537.36, 11/09/2013 20:40:13
