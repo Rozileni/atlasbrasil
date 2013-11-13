@@ -56,6 +56,12 @@ if($ano == "all")
             $quartis_info1 = "SELECT COUNT(v.valor) as count ,ROUND(MAX(v.valor),3) as max ,ROUND(MIN(v.valor),3) as min FROM valor_variavel_mun v WHERE v.fk_ano_referencia = 3 and v.fk_variavel = $indc;";              
             $quartis_data1 = "SELECT ROUND(v.valor,3) AS valor FROM valor_variavel_mun v WHERE v.fk_ano_referencia = 3 and v.fk_variavel = $indc ORDER BY valor;";                         
             break;
+        
+        case Consulta::$ESP_REGIAOMETROPOLITANA:
+            
+            $quartis_info1 = "SELECT COUNT(v.valor) as count ,ROUND(MAX(v.valor),3) as max ,ROUND(MIN(v.valor),3) as min FROM valor_variavel_rm v WHERE v.fk_ano_referencia = 3 and v.fk_variavel = $indc;";              
+            $quartis_data1 = "SELECT ROUND(v.valor,3) AS valor FROM valor_variavel_rm v WHERE v.fk_ano_referencia = 3 and v.fk_variavel = $indc ORDER BY valor;";                         
+            break;
     }
     
     $resultado1 = $quantil->buildAndReturnQuintil($quartis_info1, $quartis_data1, $decimais, $indc, $spc);
@@ -119,10 +125,14 @@ else
             $quartis_info = "SELECT COUNT(v.valor) as count ,ROUND(MAX(v.valor),3) as max ,ROUND(MIN(v.valor),3) as min FROM valor_variavel_mun v WHERE v.fk_ano_referencia = $ano and v.fk_variavel = $indc;";              
             $quartis_data = "SELECT ROUND(v.valor,3) AS valor FROM valor_variavel_mun v WHERE v.fk_ano_referencia = $ano and v.fk_variavel = $indc ORDER BY valor;";              
             break;
+        case Consulta::$ESP_REGIAOMETROPOLITANA:
+            $quartis_info = "SELECT COUNT(v.valor) as count ,ROUND(MAX(v.valor),3) as max ,ROUND(MIN(v.valor),3) as min FROM valor_variavel_rm v WHERE v.fk_ano_referencia = $ano and v.fk_variavel = $indc;";              
+            $quartis_data = "SELECT ROUND(v.valor,3) AS valor FROM valor_variavel_rm v WHERE v.fk_ano_referencia = $ano and v.fk_variavel = $indc ORDER BY valor;";              
+            break;
     }
     
     
-    $resultado = $quantil->buildAndReturnQuintil($quartis_info, $quartis_data, $decimais, $indc);
+    $resultado = $quantil->buildAndReturnQuintil($quartis_info, $quartis_data, $decimais, $indc, $spc);
     if(sizeof($resultado) == 0)
     {
         $response["msg"] = "Não existe dados na tabela de valores para esse indicador";

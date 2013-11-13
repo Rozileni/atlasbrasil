@@ -32,3 +32,5 @@ build.tablea.js,469,473,,n=Netscape v=5.0 (Windows NT 6.1; WOW64) AppleWebKit/53
 build.tablea.js,469,473,,n=Netscape v=5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.62 Safari/537.36, 06/09/2013 17:44:31
 build.tablea.js,469,473,,n=Netscape v=5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.66 Safari/537.36, 11/09/2013 20:40:13
 build.tablea.js,469,473,,n=Netscape v=5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.66 Safari/537.36, 11/09/2013 20:40:13
+build.tablea.js,469,473,,n=Netscape v=5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.101 Safari/537.36, 12/11/2013 22:14:58
+build.tablea.js,469,473,,n=Netscape v=5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.101 Safari/537.36, 12/11/2013 22:14:58

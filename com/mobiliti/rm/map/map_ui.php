@@ -70,21 +70,32 @@
 <script type="text/javascript" src="com/mobiliti/rm/selector/IndicadorRM.js"></script>
 <script>
     
-    var rm_map;
+    var rm_map = null;
     var indicadorRm;
     var indicadorList;
     var geral = new Geral();
     
     function show_tab_map_callback()
     {
-        if(rm_map == null)init_map_rm();
+        if(rm_map === null)init_map_rm();
         return 0;
     }
     
     
     function init_map_rm()
     {
+        
+        
+        $("#ui-mnu-locais :input").attr('disabled', true);
+        $("#ui-mnu-locais :input").click(on_locais_check_evt);
+        $("#ui_rm_map_year_slider").bind("slider:changed", year_changed_evt);
         rm_map = new RmMap("google-map-canvas");
+        
+        rm_map.setDisplayRMListener(on_display_rm);
+        rm_map.setResetLocais(on_reset_locais);
+        rm_map.setUpdateLegendaListener(on_update_legenda);
+        rm_map.setAno(1);
+        
         $("#menu-rm a").click(menu_handler);
         
         try 
@@ -101,7 +112,7 @@
         {
             $('#ui-indicador-list').load('com/mobiliti/rm/selector/indicador_rm.html', function()
             {
-                indicadorList = new SeletorIndicador();
+                indicadorList = new SeletorIndicador(); 
                 indicadorList.startLocal(indicadorList_evt, "ui-indicador-list", false);
             });
             
@@ -112,16 +123,32 @@
         }
        
         
+        
+        $(".opt-view").click(optViewHandler);
         return 0;
     }   
+    
+    
+    
+    function year_changed_evt(event, data)
+    {
+        if (data.value === 1991)
+            rm_map.setAno(1);
+        else if (data.value === 2000)
+            rm_map.setAno(2);
+        else if (data.value === 2010)
+            rm_map.setAno(3);
+        
+        update_ind_display();
+    }
     
     function menu_handler()
     {
         var menu = $(this).attr("href");
         
-        if($(this).attr("status") == "close")
+        if($(this).attr("status") === "close")
         {
-            $("#ui-mnu-" + menu).show().animate({height: "315px"}, "slow");
+            $("#ui-mnu-" + menu).show().animate({height: "400px"}, "slow");
             $(this).attr("status","open");
         }
         else
@@ -136,21 +163,114 @@
     function btn_select_indicador_handler()
     {
         indicadorRm.show();
-        return 0;
+        return 1;
     }
     
-    function seletor_indicador_evt(obj)
+    function seletor_indicador_evt(arr)
     {
-        geral.setIndicadores(obj);
+        geral.setIndicadores(arr);
         indicadorRm.refresh();
         indicadorList.refresh();
+        update_ind_display();
+        
+        return 1;
     }
     
-    function indicadorList_evt(obj)
+    
+    
+    function indicadorList_evt(arr)
     {
-        geral.setIndicadores(obj);
+        geral.setIndicadores(arr);
         indicadorList.refresh();
+        update_ind_display();
+        
+        return 1;
     }
+    
+    
+    function update_ind_display()
+    {
+        $("#ui_ind_label").html('');
+        
+        arr = geral.getIndicadores();
+        $.each(arr,function(i,item)
+	{
+            if(item.c === true)
+            {
+               $("#ui_ind_label").html(item.nc + ' (' + rm_map.getAnoString() + ')'); 
+               rm_map.setIndicador(item.id);
+               return 1;
+            }
+	 });
+        return 1;
+    }
+    
+    
+    function on_display_rm(display)
+    {
+        if(display)
+            $("#ui-mnu-locais :input").attr('disabled', false);
+        else
+            $("#ui-mnu-locais :input").attr('disabled', true);
+        
+        return 1;
+    }
+    
+    function on_locais_check_evt()
+    {
+        switch($(this).val())
+        {
+             case "reg":
+                rm_map.loadAndDisplayRM();
+                break;
+            case "mun":
+                rm_map.loadAndDisplayCities();
+                break;
+            case "udh":
+                rm_map.loadAndDisplayUDH();
+                break;
+            case "rop":
+                rm_map.loadAndDisplayOP();
+                break;
+        }
+        return 1;
+    }
+    
+    
+    function on_reset_locais()
+    {
+        $("#rm_first_opt").attr("checked","checked");
+        return 1;
+    }
+    
+    
+    function on_update_legenda(leg)
+    {
+        $("#ui-area-leg").html('');
+        
+        $.each(leg,function(i,item)
+	{
+             htm = "<div>" 
+              + "  <div style='float: left; background-color:" + item.cor_preenchimento + "; border: 1px solid black; height: 20px; width: 20px;'></div>&nbsp; " 
+              +  "  <span>"+ item.nome + "</span>  " 
+              +  " </div>  <br/>";
+              
+              $("#ui-area-leg").append(htm);
+        });
+        
+        return 1;
+    }
+    
+    function optViewHandler()
+    {
+        $(".opt-view").removeClass("active");
+        $(this).addClass("active");
+        
+        rm_map.changeMapType($(this).attr("map-type"));
+        
+    }
+
+    
 </script>
 
 
@@ -199,9 +319,11 @@
     <ul>
         <li><a href="locais" status="close" >Locais &nbsp;<img src="img/seta.gif" /></a></li>
         <li><a href="indicadores" status="close" >Indicadores &nbsp;<img src="img/seta.gif" /></a></li>
-        <li><a href="legenda" status="close">Legenda</a></li>
+        <li><a href="legenda" status="close">Legenda &nbsp;<img src="img/seta.gif" /></a></li>
+        <li>| <span id="ui_ind_label"></span></li>
     </ul>
 </nav>
+
 <div style='position:relative; height: 500px; width: 100%'>
     
   
@@ -213,34 +335,56 @@
          <img  src="img/loader.gif" />
      </div>
      
+     <!-- lista de espacialidades -->
      <div id="ui-mnu-locais" class="ui-mnu" style='position:absolute; top:0px; left:2px; height: 0px; width: 300px; background-color: white; display: none; border: 1px solid #ccc;' >
          
-         <!-- lista de espacialidades -->
          <ul class="locais-list" >
-           <li><input type="checkbox" value="mun">Municípios</li>
-           <li><input type="checkbox" value="udh">Unidade de Desenvolvimento Humano</li>
-           <li><input type="checkbox" value="udh">Regiões do OP</li>
+             <li><input id="rm_first_opt" type="radio" name="local-tipo" checked="checked" value="reg">Regiões Metropolitanas</li>
+           <li><input type="radio" name="local-tipo" value="mun">Municípios</li>
+           <li><input type="radio" name="local-tipo" value="udh">Unidade de Desenvolvimento Humano</li>
+           <li><input type="radio" name="local-tipo" value="rop">Regiões do OP</li>
          </ul>
          
      </div>
      
-     <div id="ui-mnu-indicadores" class="ui-mnu" style='position:absolute; top:0px; left:70px; height: 0px; width: 300px; background-color: white; display: none; border: 1px solid #ccc;' >
+     <div id="ui-mnu-indicadores" class="ui-mnu" style='position:absolute; top:0px; left:80px; height: 0px; width: 300px; background-color: white; display: none; border: 1px solid #ccc;' >
          <br/> 
          <div id="ui-indicador-list"></div> 
          <div id="btn_select_indicador" style='position:absolute; top:275px; left:10px;' onclick="btn_select_indicador_handler();" class="btn">Alterar Lista</div>
+         <div style='position:absolute; top:320px; left:15px;'>
+             <span id="ui_rm_ano" style="font-weight: bold; display:block; margin-left:24px; width:44px">ANO</span>
+                <div>
+                    <div class='labels'>
+                        <span class="one">1991</span>
+                        <span class="two">2000</span>
+                        <span class="tree">2010</span>
+                    </div>
+                </div>
+                <div class="sliderDivFather">
+                    <div class="sliderDivIn">
+                        <input type='text' id="ui_rm_map_year_slider" data-slider="true" data-slider-values="1991,2000,2010" data-slider-equal-steps="true" data-slider-snap="true" data-slider-theme="volume" />
+                    </div>    
+                </div>
+         </div>
+     
      </div>
      
      
       <!-- Local para a legenda-->
-      <div id="ui_legend" style='position:absolute; top:0px; left:759px; display: none; height: 100%; width: 200px; background-color: white; border-left: 1px solid #ccc;' >
+      <div id="ui-mnu-legenda" class="ui-mnu" style='position:absolute; top:0px; left:190px; height: 0px; width: 300px; background-color: white; display: none; border: 1px solid #ccc;' >
+       
+          <div id="ui-area-leg" style='position: relative; top:10px; left:10px; height: 100%; width: 290px;' >
+              
+              Nenhuma legenda disponível.
+              
+             
+          </div>         
+      </div>
       
-          <div style="height: 50px; width: 100%;">
-             <div style='position:absolute; top:7px; left:50px; font-size: 16px; font-weight: bold'> Legenda </div>
-          </div>
-          
-          <div id="ui_area_leg">
-          </div>
-                    
+      
+      <div class="btn-group" style='position:absolute; top:10px; left:820px;'>
+        <button type="button" map-type="ROADMAP"  class="btn btn-default opt-view active">Mapa</button>
+        <button type="button" map-type="SATELLITE" class="btn btn-default opt-view">Satélite</button>
       </div>
 
 </div>

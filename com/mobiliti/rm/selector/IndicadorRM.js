@@ -721,9 +721,16 @@ function IndicadorRM(_listener)
              dispatchListener();
         });
         
-        
+        $(this_selector_element).find('.btn_clean').click(function(e){
+             value_indicador = new Array();
+             $(this_selector_element).find('.indicador ul li').removeClass('selected');
+             $(this_selector_element).find('.indicador ul li .indicador_ano span').removeClass('selected');
+             fillSelectedItens();
+         });
+         
         loadData(); 
     };
+
     
     this.dispose = function(){
         $("#indicador-holder").fadeOut("slow");

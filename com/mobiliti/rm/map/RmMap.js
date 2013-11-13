@@ -4,26 +4,49 @@ function RmMap(map_div)
     var _map;
     var _map_div = map_div;
     
+    
+    
     var _rm_data_table;
     var _rm_markers;
     var _rm_markers_info;
     var _is_marker_visible = false;
+    
+    
+    
     var _rm_shapes;
+    var _rm_shapes_idx;
     
-    var _rm_cities = new Object();
+    var _rm_cities;
+    var _rm_cities_idx;
     
-    var RM_LIMIT_VIEW = 7;
-    var RM_DISPLAY_CITY = 11;
+    var RM_LIMIT_VIEW = 8;
+    var ESP_MUNICIPAL = 2;
+    var ESP_REGIAOMETROPOLITANA = 6;
+    var ESP_UDH = 5;
+        
+    var _NO_COLOR = "#ccc";
     
+    var _espac = -1;
+    var _indicador  = -1;
+    var _ano = 1;
+    
+    //listeners
+    var _display_rm_listener = null;
+    var _reset_locais_listener = null;
+    var _legenda_listener = null;
+    
+    
+    var _legenda = new Array();
+    var _dados = null;
    
     //costrutor
     _iniciar_mapa();
     //fim construtor
     
-    //métodos privados
+    //mÃ©todos privados
     function _iniciar_mapa()
     {
-        //starta o mapa com suas opções
+        //starta o mapa com suas opÃ§Ãµes
         var mapOptions = {
             zoom: 5,
             center: new google.maps.LatLng(-14.68, -50.36),
@@ -34,45 +57,38 @@ function RmMap(map_div)
         
         google.maps.event.addListener(_map, 'zoom_changed', _zoom_evt);
         //google.maps.event.addListener(_map, 'dragend', _dragend_evt);
-        
-        
-        
-        loadingHolder.show("Carregando Regiões Metropolitanas...");
+
+        loadingHolder.show("Carregando regiões metropolitanas...");
         $.ajax({type: "POST",dataType: "json",url: "com/mobiliti/rm/map/regmet_controller.php",
             data: {method:'laod_rm_data'}
-        }).done(_load_rm_data);
-        
+        }).done(_load_rm_shp);
         return 1;
     }
     
     
    function _zoom_evt()
-   {
-       
+   {  
        if(this.zoom >= RM_LIMIT_VIEW && _is_marker_visible)
        {
             _display_rm_pin(!_is_marker_visible);
             _display_rm_shp(true);
+            if(_display_rm_listener !== null) _display_rm_listener(true);
+            _espac = ESP_REGIAOMETROPOLITANA;
        }
        else if(this.zoom < RM_LIMIT_VIEW && !_is_marker_visible)
        {
              _display_rm_pin(!_is_marker_visible);
              _display_rm_shp(false);
+             _display_mun_shp(false);
+             if(_display_rm_listener !== null)_display_rm_listener(false);
+             if(_reset_locais_listener !== null) _reset_locais_listener();
+             _espac = -1;
        }
-       
-       
-       if(this.zoom >= RM_DISPLAY_CITY)_check_for_cities();
-       
        return 1;
    }
    
-   function _dragend_evt()
-   {
-       if(this.zoom >= RM_DISPLAY_CITY)_check_for_cities();
-       return 1;
-   }
-   
-   function _load_rm_data(data)
+
+   function _load_rm_shp(data)
    {
        _rm_data_table = data;
        _create_rm_pin();
@@ -82,7 +98,7 @@ function RmMap(map_div)
        return 1;
    }
    
-   //exibe os marcadores sobre as rm's
+   //cria os alfinestes sobre as regiÃµes metropolitas 
    function _create_rm_pin()
    {  
       _rm_markers = new Array();
@@ -153,8 +169,8 @@ function RmMap(map_div)
    
    function _check_for_cities()
    {
-       _display_rm_shp(false);
-       
+
+       loadingHolder.show("Carregando municípios...");
        var max  = _map.getBounds().getNorthEast();
        var min  = _map.getBounds().getSouthWest();
        
@@ -162,57 +178,96 @@ function RmMap(map_div)
        
        $.ajax({type: "POST",dataType: "json",url: "com/mobiliti/rm/map/regmet_controller.php",
             data: {method:'load_cities_data', extent: obj_extent }
-        }).done(_load_cities_data);
+        }).done(_load_cities_shp);
        
        return 1;
    }
    
    
-   function _load_cities_data(data)
+   function _load_cities_shp(data)
    {
+      _rm_cities = new Array();
+
       for (var i = 0, len = data.length; i < len; i++) 
       {
-        var city = data[i];
-        
-        console.log(city.rm_id)
-           
-           
-        var geo_info = 
-        {
-              type: "Feature",
-              properties: {"nome": city.nome, "id": city.id},
-              geometry: $.parseJSON(city.geo_json)
-        };
-         
-        var color = "#CCFF66";
-        var geo_style = 
-        {
-              strokeColor: "#000",
-              strokeOpacity: 1,
-              strokeWeight: 1,
-              fillColor: color,
-              fillOpacity: 0.5
-        };
+            var city = data[i];
+
+            var geo_info = 
+            {
+                  type: "Feature",
+                  properties: {"nome": city.nome, "rmid" : city.rm_id, "id": city.mun_id, valor: 0},
+                  geometry: $.parseJSON(city.geo_json)
+            };
+
+            var color = "#CCFF66";
+            var geo_style = 
+            {
+                  strokeColor: "#000",
+                  strokeOpacity: 1,
+                  strokeWeight: 1,
+                  fillColor: color,
+                  fillOpacity: 0.5
+            };
+
+            var geo_json = new GeoJSON(geo_info, geo_style);
+
+            if (geo_json.type && geo_json.type === "Error") 
+            {
+                console.log("Erro ao gerar objeto GeoJson!");
+                return false; 
+            }
+
+            _rm_cities.push(geo_json[0]);
+       }
+
+       _display_mun_shp(true);
+       loadingHolder.dispose();
+       return 1;
+   }
+   
+   
+   //exibe os shapes dos municÃ­pios
+   function _display_mun_shp(flag)
+   { 
+      var rmid_b = -1, rmid_a = -1;
+      
+      if(_rm_cities === undefined || _rm_cities === null) return 0;
+      for (var i = 0, len = _rm_cities.length; i < len; i++) 
+      {
+          var city = _rm_cities[i];
           
-        var geo_json = new GeoJSON(geo_info, geo_style);
+          
+         
+          if(flag)
+          {
+              city.setMap(_map);
+              //exibir borda da rm
+              rmid_a = parseInt(city.geojsonProperties.rmid);
+              if(rmid_a !== rmid_b)
+              {
+                console.log(_rm_shapes[rmid_a]);
+                _rm_shapes[rmid_a].strokeColor = "#00f";
+                _rm_shapes[rmid_a].strokeOpacity = 1;
+                _rm_shapes[rmid_a].strokeWeight =  1;
+                _rm_shapes[rmid_a].fillColor =  "#ccc"
+                _rm_shapes[rmid_a].fillOpacity = 0.5
+              }
+              rmid_b = rmid_a;
+              //------
 
-        if (geo_json.type && geo_json.type == "Error") 
-        {
-            console.log("Erro ao gerar objeto GeoJson!");
-            return false; 
-        }
-        
-        
-        geo_json[0].setMap(_map);
+          }
+          else
+              city.setMap(null);  
       }
-
       return 1;
    }
+   
    
    //exibe os marcadores sobre as rm's
    function _display_rm_pin(flag)
    { 
       _is_marker_visible = flag;
+      if(_rm_markers === undefined || _rm_markers === null) return 0;
       for (var i = 0, len = _rm_markers.length; i < len; i++) 
       {
           var mk = _rm_markers[i];
@@ -229,6 +284,8 @@ function RmMap(map_div)
    function _create_rm_shp()
    { 
       _rm_shapes = new Array(); 
+      _rm_shapes_idx = new Array(); 
+      
       for (var i = 0, len = _rm_data_table.length; i < len; i++) 
       {
         var rm = _rm_data_table[i];
@@ -236,29 +293,29 @@ function RmMap(map_div)
         var geo_info = 
         {
               type: "Feature",
-              properties: {"nome": rm.nome, "id": rm.id},
+              properties: {"nome": rm.nome, "id": rm.id, valor: 0},
               geometry: $.parseJSON(rm.geo_json)
         };
          
-        var color = "#CCFF66";
         var geo_style = 
         {
-              strokeColor: "#000000",
+              strokeColor: "#00f",
               strokeOpacity: 1,
               strokeWeight: 1,
-              fillColor: color,
+              fillColor: _NO_COLOR,
               fillOpacity: 0.5
         };
           
         var geo_json = new GeoJSON(geo_info, geo_style);
 
-        if (geo_json.type && geo_json.type == "Error") 
+        if (geo_json.type && geo_json.type === "Error") 
         {
             console.log("Erro ao gerar objeto GeoJson!");
             return false; 
         }
         
-        _rm_shapes.push(geo_json[0]);
+        _rm_shapes[rm.id] = geo_json[0];
+        _rm_shapes_idx.push(rm.id);
       }
       
       return 1;
@@ -267,28 +324,151 @@ function RmMap(map_div)
    
    
    //exibe os shapes sobre as rm's
+   //e atualiza suas respectivas cores
    function _display_rm_shp(flag)
    { 
-      for (var i = 0, len = _rm_shapes.length; i < len; i++) 
+      for (var i = 0, len = _rm_shapes_idx.length; i < len; i++) 
       {
-          var shp = _rm_shapes[i];
+          var shp = _rm_shapes[_rm_shapes_idx[i]];
           if(flag)
+          {              
+              shp.fillColor = "#ccc"; 
+              for (var k = 0, klen = _legenda.length; k < klen; k++) 
+              { 
+                  var valor = shp.geojsonProperties.valor;
+                  var leg = _legenda[k];
+                  
+                  console.log(valor);
+                  
+                  if(valor >= leg.minimo && valor <= leg.maximo)
+                  {
+                      shp.fillColor = leg.cor_preenchimento;
+                      break;
+                  }
+              }
+
               shp.setMap(_map);
+          }
           else
               shp.setMap(null);  
       }
       return 1;      
    }
    
+   
+   function _build_legend(data)
+   {
+     
+       _dados = data.dados;
+       _legenda = data.legenda;
+       if(_legenda_listener !== null )_legenda_listener(_legenda);
+       
+       
+       switch (_espac)
+       {
+            case ESP_REGIAOMETROPOLITANA:
+                for (var i = 0, len = _rm_shapes.length; i < len; i++) 
+                {
+                   var rm = _rm_shapes[i];
+                   rm.geojsonProperties.valor = _dados[rm.geojsonProperties.id];
+                }
+                break;
+            case ESP_MUNICIPAL:
+                for (var i = 0, len = _rm_cities.length; i < len; i++) 
+                {
+                   var rm = _rm_cities[i];
+                   rm.geojsonProperties.valor = _dados[rm.geojsonProperties.id];
+                }
+                console.log(_rm_cities);
+                break;
+                
+       }
+       
+       
+       loadingHolder.dispose();
+   }
+   
+   function _update_indicador()
+   { 
+        if(_espac === -1)
+        {
+           alert('Nenhuma espacialidade selecionada');
+           return 0;
+        }
+        loadingHolder.show("Carregando Legenda...");
+        $.ajax({type: "POST",dataType: "json",url: "com/mobiliti/rm/map/regmet_controller.php",
+            data: {method:'load_legenda',indc: _indicador, spc: _espac, ano: _ano}
+        }).done(_build_legend);
+
+       return 1;
+   }
+   
+   
+  
     
    //membros publicos
    return {
-        adicionaLivro: function(livro) {
-            _livros.push(livro);
-            //return this;
+        setIndicador: function(value){
+            _indicador = value;
+            _update_indicador();
         },
-        meusLivros: function(){
-            return _ordenaLivros(_livros).join(", ");
-        }
+        getIndicador: function() {
+            return _indicador;
+        },   
+        setAno: function(value) {
+            _ano = value;
+        },
+        getAno: function() {
+            return _ano;
+        },
+        getAnoString: function() {
+            var ano_t = "1991";
+            switch (_ano)
+            {
+                case 2:
+                    ano_t = "2000";
+                    break;
+                case 3: 
+                    ano_t = "2010";
+                    break;
+            }
+            
+            return ano_t;
+        },
+        setUpdateLegendaListener: function(listener) {
+            _legenda_listener = listener;
+        },
+        setDisplayRMListener: function(listener) {
+            _display_rm_listener = listener;
+        },
+        setResetLocais :function(listener) {
+            _reset_locais_listener = listener;
+        },
+        loadAndDisplayCities: function() {
+            _espac = ESP_MUNICIPAL;
+            _display_rm_shp(false);
+            _check_for_cities();
+        },
+        loadAndDisplayRM: function() {
+             _espac = ESP_REGIAOMETROPOLITANA;
+            _display_mun_shp(false);
+            _display_rm_shp(true);
+        },
+        loadAndDisplayUDH: function() {
+            _espac = ESP_UDH;
+            _display_mun_shp(false);
+            _display_rm_shp(false);
+        },
+        loadAndDisplayOP: function() {
+            _espac = -1;
+            _display_mun_shp(false);
+            _display_rm_shp(false);
+        },
+        changeMapType: function(type) {
+            if(type === "ROADMAP")
+                _map.setMapTypeId(google.maps.MapTypeId.ROADMAP);
+            else if(type === "SATELLITE")
+                 _map.setMapTypeId(google.maps.MapTypeId.SATELLITE);
+        }  
     };
 }

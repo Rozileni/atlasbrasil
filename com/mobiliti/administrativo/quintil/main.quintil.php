@@ -479,6 +479,7 @@ $res = pg_query($ocon->open(), $query) or die("Nao foi possivel executar a consu
 <!--  <option value="all">TODOS</option>-->
   <option value="<?php echo Consulta::$ESP_MUNICIPAL; ?>">MUNICIPAL</option>
   <option value="<?php echo Consulta::$ESP_ESTADUAL; ?>">ESTADUAL</option>
+  <option value="<?php echo Consulta::$ESP_REGIAOMETROPOLITANA; ?>">REG. METROPOLITANA</option>
 </select>
 </div>    
     

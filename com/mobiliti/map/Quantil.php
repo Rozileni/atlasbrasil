@@ -225,12 +225,13 @@ class Quantil
         $r_quartil_data = pg_query($this->link, $quartis_data) or die("Nao foi possivel executar a consulta!");
         $r_quartil_info = pg_query($this->link, $quartis_info) or die("Nao foi possivel executar a consulta!");
         
-        $r_limites = pg_query($this->link, "SELECT minimo, maximo_e, maximo_m FROM variavel WHERE id = $ind;") or die("Nao foi possivel executar a consulta!");
+        $r_limites = pg_query($this->link, "SELECT minimo, maximo_e, maximo_m, maximo_rm FROM variavel WHERE id = $ind;") or die("Nao foi possivel executar a consulta!");
         $limites = pg_fetch_object($r_limites);
        
         if($limites->minimo == NULL)$limites->minimo = 0;
         if($limites->maximo_e == NULL)$limites->maximo_e = 1000000;
         if($limites->maximo_m == NULL)$limites->maximo_m = 1000000;
+        if($limites->maximo_rm == NULL)$limites->maximo_rm = 1000000;
           
         $quartil_obj = pg_fetch_object($r_quartil_info, 0);
         $valor_dta = array();
@@ -297,6 +298,15 @@ class Quantil
                {
                      $name = number_format($valor_dta[$qrt_qrts],$dec,",",".") . " a " . number_format($limites->maximo_e,$dec,",",".");
                      $class_object = "{\"id\":\"$id\", \"name\":\"$name\", \"min\":\"$valor_dta[$qrt_qrts]\", \"max\":\"$limites->maximo_e\", \"color\":\"" . $c->colors[4] . "\"}";
+                     array_push($resultado, $class_object);
+               }
+           }
+           else if($espc == Consulta::$ESP_REGIAOMETROPOLITANA)
+           {
+               if(isset($valor_dta[$qrt_qrts]))
+               {
+                     $name = number_format($valor_dta[$qrt_qrts],$dec,",",".") . " a " . number_format($limites->maximo_rm,$dec,",",".");
+                     $class_object = "{\"id\":\"$id\", \"name\":\"$name\", \"min\":\"$valor_dta[$qrt_qrts]\", \"max\":\"$limites->maximo_rm\", \"color\":\"" . $c->colors[4] . "\"}";
                      array_push($resultado, $class_object);
                }
            }
