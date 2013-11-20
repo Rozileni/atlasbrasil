@@ -1,5 +1,7 @@
 function RmMap(map_div)
 {
+    
+    var _this;
     //membros privados
     var _map;
     var _map_div = map_div;
@@ -71,15 +73,14 @@ function RmMap(map_div)
        if(this.zoom >= RM_LIMIT_VIEW && _is_marker_visible)
        {
             _display_rm_pin(!_is_marker_visible);
-            _display_rm_shp(true);
+            _this.displayRM();
             if(_display_rm_listener !== null) _display_rm_listener(true);
             _espac = ESP_REGIAOMETROPOLITANA;
        }
        else if(this.zoom < RM_LIMIT_VIEW && !_is_marker_visible)
        {
              _display_rm_pin(!_is_marker_visible);
-             _display_rm_shp(false);
-             _display_mun_shp(false);
+             _clear_map();
              if(_display_rm_listener !== null)_display_rm_listener(false);
              if(_reset_locais_listener !== null) _reset_locais_listener();
              _espac = -1;
@@ -87,7 +88,12 @@ function RmMap(map_div)
        return 1;
    }
    
-
+   function _clear_map()
+   {
+     _display_rm_shp(false);
+     _display_mun_shp(false);
+   }
+   
    function _load_rm_shp(data)
    {
        _rm_data_table = data;
@@ -116,26 +122,7 @@ function RmMap(map_div)
             title: " "+ i
         });
         
-        var contentString = '<div id="content">'+
-        '<div id="siteNotice">'+
-        '</div>'+
-        '<h1 id="firstHeading" class="firstHeading">'+ rm.nome +'</h1>'+
-        '<div id="bodyContent">'+
-        '<p><b>Uluru</b>, also referred to as <b>Ayers Rock</b>, is a large ' +
-        'sandstone rock formation in the southern part of the '+
-        'Northern Territory, central Australia. It lies 335&#160;km (208&#160;mi) '+
-        'south west of the nearest large town, Alice Springs; 450&#160;km '+
-        '(280&#160;mi) by road. Kata Tjuta and Uluru are the two major '+
-        'features of the Uluru - Kata Tjuta National Park. Uluru is '+
-        'sacred to the Pitjantjatjara and Yankunytjatjara, the '+
-        'Aboriginal people of the area. It has many springs, waterholes, '+
-        'rock caves and ancient paintings. Uluru is listed as a World '+
-        'Heritage Site.</p>'+
-        '<p>Attribution: Uluru, <a href="http://en.wikipedia.org/w/index.php?title=Uluru&oldid=297882194">'+
-        'http://en.wikipedia.org/w/index.php?title=Uluru</a> '+
-        '(last visited June 22, 2009).</p>'+
-        '</div>'+
-        '</div>';
+        var contentString = '<div id="content">'+ rm.nome +'</div>';
         
         
         
@@ -187,6 +174,7 @@ function RmMap(map_div)
    function _load_cities_shp(data)
    {
       _rm_cities = new Array();
+      _rm_cities_idx = new Array();
 
       for (var i = 0, len = data.length; i < len; i++) 
       {
@@ -217,7 +205,9 @@ function RmMap(map_div)
                 return false; 
             }
 
-            _rm_cities.push(geo_json[0]);
+            _rm_cities[city.mun_id] = geo_json[0];
+            _rm_cities_idx.push(city.mun_id);
+            
        }
 
        _display_mun_shp(true);
@@ -232,25 +222,45 @@ function RmMap(map_div)
       var rmid_b = -1, rmid_a = -1;
       
       if(_rm_cities === undefined || _rm_cities === null) return 0;
-      for (var i = 0, len = _rm_cities.length; i < len; i++) 
+      for (var i = 0, len = _rm_cities_idx.length; i < len; i++) 
       {
-          var city = _rm_cities[i];
-          
-          
-         
+          var city = _rm_cities[_rm_cities_idx[i]];
+
           if(flag)
           {
+              //exibe as cidades de acordo com os seus respectivos valores
+              city.fillColor = "#ccc"; 
+              city.strokeColor = "#00f";
+              city.strokeOpacity = 1;
+              city.strokeWeight =  1;
+              city.fillOpacity = 0.5;
+              
+              for (var k = 0, klen = _legenda.length; k < klen; k++) 
+              { 
+                  var valor = city.geojsonProperties.valor;
+                  var leg = _legenda[k];
+                
+                  
+                  if(valor >= leg.minimo && valor <= leg.maximo)
+                  {
+                      city.fillColor = leg.cor_preenchimento;
+                      break;
+                  }
+              }
+
+              city.setMap(null);
               city.setMap(_map);
+              //------------------------------------------------- 
+              
               //exibir borda da rm
               rmid_a = parseInt(city.geojsonProperties.rmid);
               if(rmid_a !== rmid_b)
               {
-                console.log(_rm_shapes[rmid_a]);
                 _rm_shapes[rmid_a].strokeColor = "#00f";
                 _rm_shapes[rmid_a].strokeOpacity = 1;
-                _rm_shapes[rmid_a].strokeWeight =  1;
-                _rm_shapes[rmid_a].fillColor =  "#ccc"
-                _rm_shapes[rmid_a].fillOpacity = 0.5
+                _rm_shapes[rmid_a].strokeWeight =  2;
+                _rm_shapes[rmid_a].fillOpacity = 0;
+                _rm_shapes[rmid_a].setMap(_map);
               }
               rmid_b = rmid_a;
               //------
@@ -331,14 +341,18 @@ function RmMap(map_div)
       {
           var shp = _rm_shapes[_rm_shapes_idx[i]];
           if(flag)
-          {              
+          {
               shp.fillColor = "#ccc"; 
+              shp.strokeColor = "#00f";
+              shp.strokeOpacity = 1;
+              shp.strokeWeight =  1;
+              shp.fillOpacity = 0.5;
+              
               for (var k = 0, klen = _legenda.length; k < klen; k++) 
               { 
                   var valor = shp.geojsonProperties.valor;
                   var leg = _legenda[k];
-                  
-                  console.log(valor);
+
                   
                   if(valor >= leg.minimo && valor <= leg.maximo)
                   {
@@ -347,6 +361,7 @@ function RmMap(map_div)
                   }
               }
 
+              shp.setMap(null);
               shp.setMap(_map);
           }
           else
@@ -367,24 +382,23 @@ function RmMap(map_div)
        switch (_espac)
        {
             case ESP_REGIAOMETROPOLITANA:
-                for (var i = 0, len = _rm_shapes.length; i < len; i++) 
+                for (var i = 0, len = _rm_shapes_idx.length; i < len; i++) 
                 {
-                   var rm = _rm_shapes[i];
-                   rm.geojsonProperties.valor = _dados[rm.geojsonProperties.id];
+                   var shp = _rm_shapes[_rm_shapes_idx[i]];
+                   shp.geojsonProperties.valor = _dados[shp.geojsonProperties.id];
                 }
+                _this.displayRM();
                 break;
             case ESP_MUNICIPAL:
-                for (var i = 0, len = _rm_cities.length; i < len; i++) 
+                for (var i = 0, len = _rm_cities_idx.length; i < len; i++) 
                 {
-                   var rm = _rm_cities[i];
-                   rm.geojsonProperties.valor = _dados[rm.geojsonProperties.id];
+                   var shp = _rm_cities[_rm_cities_idx[i]];
+                   shp.geojsonProperties.valor = _dados[shp.geojsonProperties.id];
                 }
-                console.log(_rm_cities);
-                break;
-                
+                _this.displayCities();
+                break; 
        }
-       
-       
+              
        loadingHolder.dispose();
    }
    
@@ -392,7 +406,7 @@ function RmMap(map_div)
    { 
         if(_espac === -1)
         {
-           alert('Nenhuma espacialidade selecionada');
+           //alert('Nenhuma espacialidade selecionada');
            return 0;
         }
         loadingHolder.show("Carregando Legenda...");
@@ -403,11 +417,9 @@ function RmMap(map_div)
        return 1;
    }
    
-   
-  
-    
+
    //membros publicos
-   return {
+   _this =  {
         setIndicador: function(value){
             _indicador = value;
             _update_indicador();
@@ -446,23 +458,25 @@ function RmMap(map_div)
         },
         loadAndDisplayCities: function() {
             _espac = ESP_MUNICIPAL;
-            _display_rm_shp(false);
+            _clear_map();
             _check_for_cities();
         },
-        loadAndDisplayRM: function() {
+        displayCities: function() {
+            _clear_map();
+            _display_mun_shp(true);
+        },
+        displayRM: function() {
              _espac = ESP_REGIAOMETROPOLITANA;
-            _display_mun_shp(false);
-            _display_rm_shp(true);
+             _clear_map();
+             _display_rm_shp(true);
         },
         loadAndDisplayUDH: function() {
             _espac = ESP_UDH;
-            _display_mun_shp(false);
-            _display_rm_shp(false);
+            _clear_map();
         },
         loadAndDisplayOP: function() {
             _espac = -1;
-            _display_mun_shp(false);
-            _display_rm_shp(false);
+            _clear_map();
         },
         changeMapType: function(type) {
             if(type === "ROADMAP")
@@ -471,4 +485,6 @@ function RmMap(map_div)
                  _map.setMapTypeId(google.maps.MapTypeId.SATELLITE);
         }  
     };
+    
+    return _this;
 }

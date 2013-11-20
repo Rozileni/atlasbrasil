@@ -221,7 +221,7 @@
         switch($(this).val())
         {
              case "reg":
-                rm_map.loadAndDisplayRM();
+                rm_map.displayRM();
                 break;
             case "mun":
                 rm_map.loadAndDisplayCities();
