@@ -102,6 +102,9 @@ RewriteCond %{REQUEST_URI} !^(.*/)?com/mobiliti/administrativo/quintil/class_loa
 RewriteCond %{REQUEST_URI} !^(.*/)?com/mobiliti/administrativo/quintil/class_update\.php$ [NC]
 RewriteCond %{REQUEST_URI} !^(.*/)?com/mobiliti/administrativo/quintil/class_delete\.php$ [NC]
 
+#regiões metropolitanas
+RewriteCond %{REQUEST_URI} !^(.*/)?com/mobiliti/rm/map/regmet_controller\.php$ [NC]
+
 
 
 #RewriteRule ^.*$ - [R=404,L]

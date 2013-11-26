@@ -22,10 +22,7 @@ function RmMap(map_div)
     var _rm_cities_idx;
     
     var RM_LIMIT_VIEW = 8;
-    var ESP_MUNICIPAL = 2;
-    var ESP_REGIAOMETROPOLITANA = 6;
-    var ESP_UDH = 5;
-        
+
     var _NO_COLOR = "#ccc";
     
     var _espac = -1;
@@ -34,7 +31,6 @@ function RmMap(map_div)
     
     //listeners
     var _display_rm_listener = null;
-    var _reset_locais_listener = null;
     var _legenda_listener = null;
     
     
@@ -60,10 +56,6 @@ function RmMap(map_div)
         google.maps.event.addListener(_map, 'zoom_changed', _zoom_evt);
         //google.maps.event.addListener(_map, 'dragend', _dragend_evt);
 
-        loadingHolder.show("Carregando regiões metropolitanas...");
-        $.ajax({type: "POST",dataType: "json",url: "com/mobiliti/rm/map/regmet_controller.php",
-            data: {method:'laod_rm_data'}
-        }).done(_load_rm_shp);
         return 1;
     }
     
@@ -72,6 +64,7 @@ function RmMap(map_div)
    {  
        if(this.zoom >= RM_LIMIT_VIEW && _is_marker_visible)
        {
+            //mostra os shapes das RM
             _display_rm_pin(!_is_marker_visible);
             _this.displayRM();
             if(_display_rm_listener !== null) _display_rm_listener(true);
@@ -79,11 +72,11 @@ function RmMap(map_div)
        }
        else if(this.zoom < RM_LIMIT_VIEW && !_is_marker_visible)
        {
-             _display_rm_pin(!_is_marker_visible);
-             _clear_map();
-             if(_display_rm_listener !== null)_display_rm_listener(false);
-             if(_reset_locais_listener !== null) _reset_locais_listener();
-             _espac = -1;
+           //mostra os marcadores das RM
+           _display_rm_pin(!_is_marker_visible);
+           _clear_map();
+           if(_display_rm_listener !== null)_display_rm_listener(false);
+           _espac = -1;
        }
        return 1;
    }
@@ -124,8 +117,6 @@ function RmMap(map_div)
         
         var contentString = '<div id="content">'+ rm.nome +'</div>';
         
-        
-        
         var infowindow = new google.maps.InfoWindow({
             content: contentString
         });
@@ -164,7 +155,7 @@ function RmMap(map_div)
        var obj_extent = {minx: min.lng(), miny: min.lat(), maxx: max.lng(), maxy: max.lat() };
        
        $.ajax({type: "POST",dataType: "json",url: "com/mobiliti/rm/map/regmet_controller.php",
-            data: {method:'load_cities_data', extent: obj_extent }
+            data: {method:'load_cities_data', extent: obj_extent, indc: _indicador, spc: _espac, ano: _ano }
         }).done(_load_cities_shp);
        
        return 1;
@@ -175,10 +166,11 @@ function RmMap(map_div)
    {
       _rm_cities = new Array();
       _rm_cities_idx = new Array();
+      var _shapes = data.shapes;
 
-      for (var i = 0, len = data.length; i < len; i++) 
+      for (var i = 0, len = _shapes.length; i < len; i++) 
       {
-            var city = data[i];
+            var city = _shapes[i];
 
             var geo_info = 
             {
@@ -210,6 +202,7 @@ function RmMap(map_div)
             
        }
 
+        _build_legend({dados: data.dados, legenda: data.legenda});
        _display_mun_shp(true);
        loadingHolder.dispose();
        return 1;
@@ -256,7 +249,7 @@ function RmMap(map_div)
               rmid_a = parseInt(city.geojsonProperties.rmid);
               if(rmid_a !== rmid_b)
               {
-                _rm_shapes[rmid_a].strokeColor = "#00f";
+                _rm_shapes[rmid_a].strokeColor = "#000";
                 _rm_shapes[rmid_a].strokeOpacity = 1;
                 _rm_shapes[rmid_a].strokeWeight =  2;
                 _rm_shapes[rmid_a].fillOpacity = 0;
@@ -337,8 +330,10 @@ function RmMap(map_div)
    //e atualiza suas respectivas cores
    function _display_rm_shp(flag)
    { 
+      if(_rm_shapes === undefined || _rm_shapes === null) return 0;
       for (var i = 0, len = _rm_shapes_idx.length; i < len; i++) 
       {
+
           var shp = _rm_shapes[_rm_shapes_idx[i]];
           if(flag)
           {
@@ -353,7 +348,7 @@ function RmMap(map_div)
                   var valor = shp.geojsonProperties.valor;
                   var leg = _legenda[k];
 
-                  
+                  console.log(valor);
                   if(valor >= leg.minimo && valor <= leg.maximo)
                   {
                       shp.fillColor = leg.cor_preenchimento;
@@ -373,12 +368,9 @@ function RmMap(map_div)
    
    function _build_legend(data)
    {
-     
        _dados = data.dados;
        _legenda = data.legenda;
-       if(_legenda_listener !== null )_legenda_listener(_legenda);
-       
-       
+      
        switch (_espac)
        {
             case ESP_REGIAOMETROPOLITANA:
@@ -387,7 +379,6 @@ function RmMap(map_div)
                    var shp = _rm_shapes[_rm_shapes_idx[i]];
                    shp.geojsonProperties.valor = _dados[shp.geojsonProperties.id];
                 }
-                _this.displayRM();
                 break;
             case ESP_MUNICIPAL:
                 for (var i = 0, len = _rm_cities_idx.length; i < len; i++) 
@@ -395,11 +386,10 @@ function RmMap(map_div)
                    var shp = _rm_cities[_rm_cities_idx[i]];
                    shp.geojsonProperties.valor = _dados[shp.geojsonProperties.id];
                 }
-                _this.displayCities();
                 break; 
-       }
-              
-       loadingHolder.dispose();
+       } 
+       loadingHolder.dispose();   
+       if(_legenda_listener !== null )_legenda_listener(_legenda);
    }
    
    function _update_indicador()
@@ -430,6 +420,9 @@ function RmMap(map_div)
         setAno: function(value) {
             _ano = value;
         },
+        getEspacialidade: function() {
+            return _espac;
+        },
         getAno: function() {
             return _ano;
         },
@@ -452,20 +445,38 @@ function RmMap(map_div)
         },
         setDisplayRMListener: function(listener) {
             _display_rm_listener = listener;
-        },
-        setResetLocais :function(listener) {
-            _reset_locais_listener = listener;
-        },
+        },   
         loadAndDisplayCities: function() {
             _espac = ESP_MUNICIPAL;
             _clear_map();
             _check_for_cities();
         },
+                
+        laodAndDisplayRM: function() {
+             _espac = ESP_REGIAOMETROPOLITANA;
+             _clear_map();
+
+            if(_rm_shapes == undefined)
+            {
+                loadingHolder.show("Carregando regiões metropolitanas...");
+                $.ajax({type: "POST",dataType: "json",url: "com/mobiliti/rm/map/regmet_controller.php",
+                   data: {method:'laod_rm_data'}
+                }).done(_load_rm_shp);
+            }
+            else
+            {
+                _display_rm_shp(true);
+            }
+        },
+                
+                
         displayCities: function() {
+            _espac = ESP_MUNICIPAL;
             _clear_map();
             _display_mun_shp(true);
         },
         displayRM: function() {
+            
              _espac = ESP_REGIAOMETROPOLITANA;
              _clear_map();
              _display_rm_shp(true);

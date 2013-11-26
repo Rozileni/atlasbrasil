@@ -70,6 +70,12 @@
 <script type="text/javascript" src="com/mobiliti/rm/selector/IndicadorRM.js"></script>
 <script>
     
+    /* CONSTANTES DO MÓDULO RM */
+    var ESP_MUNICIPAL = 2;
+    var ESP_REGIAOMETROPOLITANA = 6;
+    var ESP_UDH = 5;
+        
+        
     var rm_map = null;
     var indicadorRm;
     var indicadorList;
@@ -84,7 +90,9 @@
     
     function init_map_rm()
     {
-        
+        $(window).resize(function() {
+           if(indicadorRm !== undefined || indicadorRm !== null)indicadorRm.refreshUI();
+        });
         
         $("#ui-mnu-locais :input").attr('disabled', true);
         $("#ui-mnu-locais :input").click(on_locais_check_evt);
@@ -92,7 +100,6 @@
         rm_map = new RmMap("google-map-canvas");
         
         rm_map.setDisplayRMListener(on_display_rm);
-        rm_map.setResetLocais(on_reset_locais);
         rm_map.setUpdateLegendaListener(on_update_legenda);
         rm_map.setAno(1);
         
@@ -125,6 +132,8 @@
         
         
         $(".opt-view").click(optViewHandler);
+        
+        if(geral.getIndicadores().length < 1)indicadorRm.show();
         return 0;
     }   
     
@@ -173,11 +182,12 @@
         indicadorList.refresh();
         update_ind_display();
         
+        rm_map.laodAndDisplayRM();
+        
         return 1;
     }
     
-    
-    
+
     function indicadorList_evt(arr)
     {
         geral.setIndicadores(arr);
@@ -208,6 +218,8 @@
     
     function on_display_rm(display)
     {
+        $("#rm_first_opt").attr("checked","checked");
+        
         if(display)
             $("#ui-mnu-locais :input").attr('disabled', false);
         else
@@ -221,7 +233,7 @@
         switch($(this).val())
         {
              case "reg":
-                rm_map.displayRM();
+                rm_map.laodAndDisplayRM();
                 break;
             case "mun":
                 rm_map.loadAndDisplayCities();
@@ -236,14 +248,7 @@
         return 1;
     }
     
-    
-    function on_reset_locais()
-    {
-        $("#rm_first_opt").attr("checked","checked");
-        return 1;
-    }
-    
-    
+
     function on_update_legenda(leg)
     {
         $("#ui-area-leg").html('');
@@ -257,7 +262,17 @@
               
               $("#ui-area-leg").append(htm);
         });
-        
+       
+//        switch(rm_map.getEspacialidade())
+//        {
+//             case ESP_MUNICIPAL:
+//                rm_map.displayCities();
+//                break;
+//            case ESP_REGIAOMETROPOLITANA:
+//                rm_map.displayRM();
+//                break;
+//        }
+
         return 1;
     }
     
@@ -304,7 +319,7 @@
      </div>
 
      <div class="btn_select" style="width: 699px">
-            <div class="messages"></div>
+            <div class="messages">Selecione os indicadores</div>
             <div class="buttons">
                 <button class="blue_button big_bt btn_ok" type="button" style="float: right; font-size: 14px; height: 30px; padding: 5px 10px;">Ok</button>
                 <button class="gray_button big_bt btn_clean" id="limpar_title" type="button" style="width: 162px; font-size: 14px; height: 30px; margin-left: 20px;">limpar sel</button>
@@ -374,11 +389,9 @@
       <div id="ui-mnu-legenda" class="ui-mnu" style='position:absolute; top:0px; left:190px; height: 0px; width: 300px; background-color: white; display: none; border: 1px solid #ccc;' >
        
           <div id="ui-area-leg" style='position: relative; top:10px; left:10px; height: 100%; width: 290px;' >
-              
               Nenhuma legenda disponível.
-              
-             
           </div>         
+          
       </div>
       
       

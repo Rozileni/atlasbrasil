@@ -14,7 +14,7 @@ function IndicadorRM(_listener)
     var skipLimit  = false;
     listener = _listener;
     
-    
+    var ref = this;
     
 
     this.refresh = function()
@@ -29,7 +29,18 @@ function IndicadorRM(_listener)
     
     function dispatchListener()
     {
-       listener(value_indicador);  
+       if(value_indicador.length > 0)
+       {
+           listener(value_indicador);  
+           ref.dispose();
+       }  
+       else
+       {
+            alert('nenhum indicador foi selecionado');
+       }
+       
+       
+       
     }
 
     function fillSelectedItensOfCurrentListOfIndicador()
@@ -710,14 +721,13 @@ function IndicadorRM(_listener)
         $("#maskTransparent").css("width",$(document).innerWidth()+"px");
         $("#maskTransparent").css("height",$(document).innerHeight()+"px");
         
-        var ref = this;
+        
         $(this_selector_element).find('.close').click(function(e){
             ref.dispose();
             return 0;    
         });
         
         $(this_selector_element).find('.btn_ok').click(function(e){
-             ref.dispose();
              dispatchListener();
         });
         
@@ -730,8 +740,20 @@ function IndicadorRM(_listener)
          
         loadData(); 
     };
-
     
+    
+    this.refreshUI = function()
+    {
+        $("#indicador-holder").css("top", "300px");
+        $("#indicador-holder").css("left",(($(document).innerWidth()/2)-($("#indicador-holder").width()/2))+"px");
+        $("#indicador-holder").css("display","block");
+        $("#indicador-holder").css("top", Math.max(0, (($(window).height() - $("#indicador-holder").outerHeight()) / 2) + $(window).scrollTop()) + "px");
+        $("#maskTransparent").css("display","block");
+        $("#maskTransparent").css("width",$(document).innerWidth()+"px");
+        $("#maskTransparent").css("height",$(document).innerHeight()+"px");
+        
+    };
+
     this.dispose = function(){
         $("#indicador-holder").fadeOut("slow");
         $("#maskTransparent").fadeOut("slow");
