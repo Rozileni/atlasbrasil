@@ -10,7 +10,7 @@ Class Conexao {
     private $user = "postgres";
     private $port = "5432";
     private $pswd = "admin123";
-    private $dbname = "atlas38";
+    private $dbname = "atlas";
     protected $con = null;
   
 
