@@ -4,18 +4,11 @@
 Class MConexao {
     /* =============== VARIÁVEIS DE CONEXÃO AO BANCO DE DADOS ================= */
 
-
-    /*private $host = "localhost";
+    private $host = "localhost";
     private $user = "postgres";
     private $port = "5432";
     private $pswd = "123";
-    private $dbname = "metricas";*/
-      
-    private $host = "66.71.249.90";
-    private $user = "ipea2012";
-    private $port = "5433";
-    private $pswd = "Ipea2012@Mob";
-    private $dbname = "atlas_metricas";
+    private $dbname = "metricas";
 
     protected $con = null;
 
